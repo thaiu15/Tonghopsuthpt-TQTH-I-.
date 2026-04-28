@@ -1,0 +1,249 @@
+# Tonghopsuthpt-TQTH-I-.
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Học tập</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  transition: background 1s;
+}
+
+/* HEADER */
+header {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px;
+  background: #2f3542;
+  color: white;
+}
+
+button {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: none;
+}
+
+/* MENU */
+.section-title {
+  padding: 12px;
+  border-radius: 10px;
+  color: white;
+  margin-top: 10px;
+}
+
+.red { background: #ff4757; }
+.blue { background: #1e90ff; }
+
+.topic, .item {
+  margin-top: 5px;
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.7);
+}
+
+.hidden { display: none; }
+
+.add-btn {
+  margin-top: 5px;
+  padding: 12px;
+  width: 100%;
+  background: #2ed573;
+  color: white;
+  border-radius: 10px;
+  font-size: 18px;
+}
+
+/* CONTENT */
+.content {
+  padding: 10px;
+}
+
+.images img {
+  width: 100px;
+  border-radius: 10px;
+}
+
+.upload-box {
+  width: 100px;
+  height: 100px;
+  border: 2px dashed #aaa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-size: 24px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <span>📚 Học tập</span>
+  <div>
+    <button id="editBtn" onclick="setEdit(true)">Edit</button>
+    <button id="doneBtn" onclick="setEdit(false)" style="display:none;">Done</button>
+  </div>
+</header>
+
+<div id="menu"></div>
+
+<div class="content">
+  <h3 id="title">Chọn bài</h3>
+  <div class="images" id="images"></div>
+  <input type="file" id="fileInput" style="display:none">
+</div>
+
+<script>
+let editMode = false;
+let data = {};
+let currentKey = "";
+
+/* EDIT MODE */
+function setEdit(val){
+  editMode = val;
+  document.getElementById("editBtn").style.display = val ? "none" : "inline";
+  document.getElementById("doneBtn").style.display = val ? "inline" : "none";
+  render();
+}
+
+/* TẠO BÀI */
+function createItem(name, container){
+  let div = document.createElement("div");
+  div.className = "item";
+  div.innerText = name;
+
+  data[name] = [];
+
+  div.onclick = ()=>{
+    currentKey = name;
+    document.getElementById("title").innerText = name;
+    render();
+  };
+
+  container.appendChild(div);
+}
+
+/* TOPIC */
+function createTopic(name, container){
+  let topic = document.createElement("div");
+  topic.className = "topic";
+  topic.innerText = name;
+
+  let list = document.createElement("div");
+  list.className = "hidden";
+
+  topic.onclick = ()=>{
+    list.classList.toggle("hidden");
+  };
+
+  let add = document.createElement("button");
+  add.innerText = "+";
+  add.className = "add-btn";
+
+  add.onclick = ()=>{
+    if(!editMode) return;
+    let n = prompt("Nhập tên bài:");
+    if(n) createItem(n, list);
+  };
+
+  list.appendChild(add);
+
+  container.appendChild(topic);
+  container.appendChild(list);
+}
+
+/* SECTION */
+function createSection(titleText, color, topics){
+  let title = document.createElement("div");
+  title.className = "section-title "+color;
+  title.innerText = titleText;
+
+  let content = document.createElement("div");
+  content.className = "hidden";
+
+  title.onclick = ()=>{
+    content.classList.toggle("hidden");
+  };
+
+  topics.forEach(t=>{
+    createTopic(t, content);
+  });
+
+  menu.appendChild(title);
+  menu.appendChild(content);
+}
+
+/* INIT */
+function init(){
+  createSection("Mục lục - Chủ đề bài","red",[
+    "Chủ đề 1","Chủ đề 2","Chủ đề 3",
+    "Chủ đề 4","Chủ đề 5","Chủ đề 6","Chủ đề 7"
+  ]);
+
+  createSection("Tiếp giải nhanh khoanh đúng","blue",[
+    "Phần 1","Phần 2","Phần 3"
+  ]);
+}
+
+/* RENDER */
+function render(){
+  let box = document.getElementById("images");
+  box.innerHTML = "";
+
+  if(!currentKey) return;
+
+  data[currentKey].forEach(src=>{
+    let img = document.createElement("img");
+    img.src = src;
+    box.appendChild(img);
+  });
+
+  if(editMode){
+    let add = document.createElement("div");
+    add.className = "upload-box";
+    add.innerText = "+";
+    add.onclick = ()=>{
+      document.getElementById("fileInput").click();
+    };
+    box.appendChild(add);
+  }
+}
+
+/* UPLOAD */
+document.getElementById("fileInput").addEventListener("change", function(e){
+  let file = e.target.files[0];
+  if(!file) return;
+
+  let reader = new FileReader();
+  reader.onload = function(ev){
+    data[currentKey].push(ev.target.result);
+    render();
+  };
+  reader.readAsDataURL(file);
+});
+
+/* BACKGROUND */
+const colors = [
+  "linear-gradient(120deg,#f6d365,#fda085)",
+  "linear-gradient(120deg,#a1c4fd,#c2e9fb)",
+  "linear-gradient(120deg,#d4fc79,#96e6a1)",
+  "linear-gradient(120deg,#84fab0,#8fd3f4)",
+  "linear-gradient(120deg,#fccb90,#d57eeb)"
+];
+
+setInterval(()=>{
+  document.body.style.background = colors[Math.floor(Math.random()*colors.length)];
+},5000);
+
+init();
+</script>
+
+</body>
+  </html>
